@@ -1,0 +1,43 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nginx
+spec:
+  releaseName: nginx-ingress-controller
+  chart:
+    spec:
+      chart: nginx-ingress-controller
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+      version: "9.1.2"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  # Default values
+  # https://github.com/bitnami/charts/blob/master/bitnami/nginx-ingress-controller/values.yaml
+  values:
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+    hostNetwork: true
+    daemonset.useHostPort: true
+
+    terminationGracePeriodSeconds: 0
+    service:
+      type: NodePort
+    nodeSelector:
+      ingress-ready: "true"
+    tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        effect: "NoSchedule"
+    publishService:
+      enabled: false
+    extraArgs:
+      publish-status-address: localhost
+    defaultBackend:
+      enabled: false
