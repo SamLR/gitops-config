@@ -14,11 +14,23 @@ spec:
       containers:
         - name: wego-app
           image: ghcr.io/weaveworks/wego-app:v0.6.0-30-gfdd7ffa7
-          args: ["ui", "run", "-l", "--helm-repo-namespace", "wego-system"]
+          args:
+            - "ui"
+            - "run"
+            - "-l"
+            - "--helm-repo-namespace"
+            - "wego-system"
+            - "--oidc-issuer-url=http://gitops-cloud-control-plane"
+            - "--oidc-client-id=c432d002-f675-4f16-9c96-890574585876"
+            - "--oidc-client-secret=dontneedone"
+            - "--oidc-redirect-url=dontneedone"
           ports:
             - containerPort: 9001
               protocol: TCP
           imagePullPolicy: IfNotPresent
+          env:
+            - name: WEAVE_GITOPS_AUTH_ENABLED
+              value: "true"
   selector:
     matchLabels:
       app: wego-app

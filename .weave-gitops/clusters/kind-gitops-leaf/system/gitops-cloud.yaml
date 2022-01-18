@@ -1,0 +1,49 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-apps
+  namespace: wego-system
+subjects:
+- kind: Group
+  name: cloud
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: resources-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wego-app
+  namespace: wego-system
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: wego-app
+      port:
+        number: 9001
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wego-impersonator
+rules:
+- apiGroups: [""]
+  resources: ["users", "groups"]
+  verbs: ["impersonate"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wego-impersonate
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wego-impersonator
+subjects:
+  - kind: ServiceAccount
+    name: wego-app-service-account
+    namespace: wego-system
